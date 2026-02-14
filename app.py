@@ -1,17 +1,37 @@
 """
-16chan V3 - Enhanced with Elections, ImageKit, Status Monitoring
+16chan V1 - Anonymous imageboard with decay mechanics
+Main Flask application handling all routes and core logic
+Production version with PostgreSQL support
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-import sqlite3
 import hashlib
 import time
 import uuid
-import random
+from functools import wraps
 import os
-import base64
 import requests
 from datetime import datetime
+import  random
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+import sqlite3
+
+load_dotenv()
+
+# Database configuration - supports both SQLite (dev) and PostgreSQL (production)
+if os.environ.get('DATABASE_URL'):
+    # Production: Use PostgreSQL
+
+    DATABASE_URL = os.environ['DATABASE_URL']
+    USE_POSTGRES = True
+    print("[INFO] Using PostgreSQL database (production mode)")
+else:
+    # Development: Use SQLite
+    DATABASE = 'db.sqlite'
+    USE_POSTGRES = False
+    print("[INFO] Using SQLite database (development mode)")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'change-me-in-production-v3')
@@ -79,7 +99,7 @@ def debug_print(msg):
 
 def get_db():
     try:
-        conn = sqlite3.connect(DATABASE, timeout=30.0)
+        conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
         conn.row_factory = sqlite3.Row
         backend_status['database'] = '🟢'
         return conn

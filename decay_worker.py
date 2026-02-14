@@ -106,23 +106,7 @@ def calculate_decay():
     debug_print("Decay cycle complete")
     send_heartbeat()
 
-def run():
-    debug_print("=" * 60)
-    debug_print("16chan V3 Decay Worker Started")
-    debug_print("=" * 60)
-    
-    calculate_decay()
-    
-    while True:
-        try:
-            time.sleep(DECAY_INTERVAL)
-            calculate_decay()
-        except KeyboardInterrupt:
-            debug_print("Worker stopped")
-            break
-        except Exception as e:
-            debug_print(f"Fatal error: {e}")
-            time.sleep(60)
+
 
 if __name__ == '__main__':
-    run()
+    calculate_decay()
