@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Boards - 16chan{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>All Boards</h2>
+    <a href="/board/new" class="btn">Create New Board</a>
+</div>
+
+{% if boards %}
+<table class="board-list">
+    <thead>
+        <tr>
+            <th>Board</th>
+            <th>Name</th>
+            <th>Threads</th>
+            <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for board in boards %}
+        <tr>
+            <td><a href="/board/{{ board.slug }}" class="board-link">/{{ board.slug }}/</a></td>
+            <td>{{ board.name }}</td>
+            <td>{{ board.thread_count }}</td>
+            <td>{{ board.created_at|format_time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state">
+    <p>No boards yet. Be the first to create one!</p>
+    <a href="/board/new" class="btn">Create Board</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Format timestamps
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[DEBUG] Boards page loaded');
+        console.log('[DEBUG] Found {{ boards|length }} boards');
+    });
+</script>
+{% endblock %}

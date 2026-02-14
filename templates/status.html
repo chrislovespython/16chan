@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Backend Status - 16chan V3{% endblock %}
+
+{% block content %}
+<div class="page-title">Backend Status & System Health</div>
+
+<div style="background: #E9E9E9; border: 1px solid #CCC; padding: 20px; margin: 20px 0;">
+    <h3 style="margin-bottom: 15px;">Service Status</h3>
+    
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr style="border-bottom: 1px solid #CCC;">
+            <td style="padding: 10px; font-weight: bold;">Database</td>
+            <td style="padding: 10px; text-align: center; font-size: 20pt;">{{ backend_status.database }}</td>
+            <td style="padding: 10px;">
+                {% if backend_status.database == '🟢' %}
+                Operational - SQLite responding
+                {% else %}
+                Down - Connection failed
+                {% endif %}
+            </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #CCC;">
+            <td style="padding: 10px; font-weight: bold;">ImageKit CDN</td>
+            <td style="padding: 10px; text-align: center; font-size: 20pt;">{{ backend_status.imagekit }}</td>
+            <td style="padding: 10px;">
+                {% if backend_status.imagekit == '🟢' %}
+                Configured - Image uploads enabled
+                {% elif backend_status.imagekit == '🟡' %}
+                Not configured - Image uploads disabled
+                {% else %}
+                Error - API connection failed
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; font-weight: bold;">Decay Worker</td>
+            <td style="padding: 10px; text-align: center; font-size: 20pt;">{{ backend_status.decay_worker }}</td>
+            <td style="padding: 10px;">
+                {% if backend_status.decay_worker == '🟢' %}
+                Running - Last heartbeat: {{ backend_status.last_decay|format_time }}
+                {% else %}
+                Not running - Start decay_worker.py
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div style="background: #E9E9E9; border: 1px solid #CCC; padding: 20px; margin: 20px 0;">
+    <h3 style="margin-bottom: 15px;">Statistics</h3>
+    
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 8px; font-weight: bold;">Total Posts:</td>
+            <td style="padding: 8px;">{{ stats.total_posts }}</td>
+            <td style="padding: 8px; font-weight: bold;">Active Boards:</td>
+            <td style="padding: 8px;">{{ stats.total_boards }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; font-weight: bold;">Active Users (24h):</td>
+            <td style="padding: 8px;">{{ stats.active_users }}</td>
+            <td style="padding: 8px; font-weight: bold;">Posts (24h):</td>
+            <td style="padding: 8px;">{{ stats.posts_24h }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; font-weight: bold;">Images Uploaded:</td>
+            <td style="padding: 8px;">{{ stats.images }}</td>
+            <td style="padding: 8px; font-weight: bold;">Server Uptime:</td>
+            <td style="padding: 8px;">{{ stats.uptime|format_uptime }}</td>
+        </tr>
+    </table>
+</div>
+
+<div style="background: #FFFFEE; border: 1px solid #D9BFB7; padding: 15px; margin: 20px 0;">
+    <h4>Status Legend:</h4>
+    <p>🟢 <strong>Green</strong> - Service operational</p>
+    <p>🟡 <strong>Yellow</strong> - Service not configured or in maintenance</p>
+    <p>🔴 <strong>Red</strong> - Service down or error state</p>
+</div>
+
+<div class="bottom-nav">
+    <a href="/">Return to Boards</a>
+</div>
+{% endblock %}

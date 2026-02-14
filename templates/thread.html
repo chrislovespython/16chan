@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Thread #{{ thread.id }} - /{{ board.slug }}/{% endblock %}
+{% block content %}
+<div class="page-title">
+    <a href="/{{ board.slug }}/">← Return to /{{ board.slug }}/</a>
+</div>
+
+<div class="thread">
+    <div class="oppost">
+        <div class="post-header">
+            <span class="country-flag"><img src="{{ thread.country|country_flag }}" alt="{{ thread.country }}" title="{{ thread.country }}"></span>
+            <span class="poster-id">{{ thread.poster_id }}</span>
+            <span class="op-badge">OP</span>
+            <span class="time">{{ thread.created_at|format_time }}</span>
+            <span class="post-num">No. {{ thread.id }}</span>
+        </div>
+        {% if thread.image_url %}
+        <div class="post-image">
+            <img src="{{ thread.image_thumbnail or thread.image_url }}" 
+                 onclick="openImageModal('{{ thread.image_url }}')" alt="Image">
+        </div>
+        {% endif %}
+        <div class="post-content">{{ thread.content|process_content|safe }}</div>
+    </div>
+    
+    {% for reply in replies %}
+    <div class="post">
+        <div class="post-header">
+            <span class="country-flag"><img src="{{ reply.country|country_flag }}" alt="{{ reply.country }}" title="{{ reply.country }}"></span>
+            <span class="poster-id">{{ reply.poster_id }}</span>
+            {% if reply.is_op %}<span class="op-badge">YOU</span>{% endif %}
+            <span class="time">{{ reply.created_at|format_time }}</span>
+            <span class="post-num">No. {{ reply.id }}</span>
+            <span class="post-controls">
+                {% if not reply.is_op %}
+                <button class="bury-btn" data-post-id="{{ reply.id }}">[Bury {{ reply.bury_score }}]</button>
+                {% endif %}
+            </span>
+        </div>
+        {% if reply.image_url %}
+        <div class="post-image">
+            <img src="{{ reply.image_thumbnail or reply.image_url }}" 
+                 onclick="openImageModal('{{ reply.image_url }}')" alt="Image">
+        </div>
+        {% endif %}
+        <div class="post-content">{{ reply.content|process_content|safe }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="post-form">
+    <form method="POST" action="/{{ board.slug }}/thread/{{ thread.id }}/reply">
+        <table>
+            <tr>
+                <td class="label">Comment:</td>
+                <td><textarea name="content" required maxlength="10000"></textarea></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><button type="submit">Post Reply</button></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="bottom-nav"><a href="/{{ board.slug }}/">Return to /{{ board.slug }}/</a></div>
+{% endblock %}

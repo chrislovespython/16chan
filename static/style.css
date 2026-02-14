@@ -1,0 +1,750 @@
+/* 16chan V3 - Enhanced with Status, Elections, Images */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: arial, helvetica, sans-serif;
+    font-size: 10pt;
+    background: #EEF2FF;
+    color: #000;
+}
+
+/* Backend Status */
+.backend-status {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    background: #FFFFEE;
+    border: 1px solid #D9BFB7;
+    padding: 5px 8px;
+    font-size: 9pt;
+    z-index: 1000;
+    box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+    max-width: 200px;
+}
+
+.backend-status .status-title {
+    font-weight: bold;
+    color: #AF0A0F;
+    margin-bottom: 3px;
+}
+
+.backend-status .status-item {
+    margin: 2px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.backend-status .status-label {
+    flex: 1;
+}
+
+.backend-status .status-icon {
+    font-size: 12pt;
+    margin-left: 5px;
+}
+
+/* Stats Box */
+.stats-box {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    background: #D6DAF0;
+    border: 1px solid #B7C5D9;
+    padding: 5px 8px;
+    font-size: 9pt;
+    z-index: 1000;
+    max-width: 200px;
+}
+
+.stats-box .stat {
+    margin: 2px 0;
+}
+
+.stats-box .stat-label {
+    font-weight: bold;
+    color: #34345C;
+}
+
+/* Header */
+header {
+    background: #FFFFEE;
+    border-bottom: 1px solid #D9BFB7;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 24pt;
+    font-weight: bold;
+    color: #AF0A0F;
+    letter-spacing: -1px;
+    margin: 5px 0;
+}
+
+header h1 a {
+    color: #AF0A0F;
+    text-decoration: none;
+}
+
+header .subtitle {
+    font-size: 9pt;
+    color: #789922;
+    font-style: italic;
+}
+
+nav {
+    text-align: center;
+    padding: 3px;
+    background: #D6DAF0;
+    border-bottom: 1px solid #B7C5D9;
+}
+
+nav a {
+    color: #34345C;
+    text-decoration: underline;
+    margin: 0 8px;
+    font-size: 10pt;
+}
+
+nav a:hover {
+    color: #AF0A0F;
+}
+
+/* Main */
+.container {
+    max-width: 1000px;
+    margin: 10px auto;
+    padding: 0 10px;
+}
+
+/* Board List */
+.board-list {
+    background: #D6DAF0;
+    border: 1px solid #B7C5D9;
+    margin: 10px 0;
+}
+
+.board-list-header {
+    background: #98E;
+    color: white;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #B7C5D9;
+}
+
+.board-row {
+    padding: 8px 10px;
+    border-bottom: 1px dotted #B7C5D9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.board-row:hover {
+    background: #EEECFA;
+}
+
+.board-info {
+    flex: 1;
+}
+
+.board-link {
+    font-weight: bold;
+    color: #34345C;
+    text-decoration: none;
+    font-family: monospace;
+    font-size: 11pt;
+}
+
+.board-link:hover {
+    color: #AF0A0F;
+}
+
+.board-name {
+    margin-left: 10px;
+    color: #000;
+}
+
+.board-desc {
+    color: #666;
+    font-size: 9pt;
+    margin-left: 10px;
+}
+
+.board-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 9pt;
+    color: #555;
+}
+
+.trending-badge {
+    background: #F0E0D6;
+    color: #800;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 8pt;
+    font-weight: bold;
+}
+
+.election-badge {
+    background: #FFE;
+    color: #800;
+    padding: 2px 5px;
+    border: 1px solid #D9BFB7;
+    border-radius: 3px;
+    font-size: 8pt;
+    font-weight: bold;
+}
+
+/* Forms */
+.post-form {
+    background: #E9E9E9;
+    border: 1px solid #D9BFB7;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.post-form table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.post-form td {
+    padding: 3px;
+}
+
+.post-form .label {
+    font-weight: bold;
+    text-align: right;
+    width: 100px;
+    padding-right: 10px;
+    color: #34345C;
+}
+
+.post-form input[type="text"],
+.post-form textarea {
+    width: 100%;
+    padding: 4px;
+    border: 1px solid #BBB;
+    background: white;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 10pt;
+}
+
+.post-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.post-form button,
+.post-form .button {
+    background: #EEAA88;
+    border: 1px solid #CCC;
+    padding: 5px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.post-form button:hover,
+.post-form .button:hover {
+    background: #FFBB99;
+}
+
+/* Image Upload */
+.image-upload-area {
+    border: 2px dashed #BBB;
+    padding: 20px;
+    text-align: center;
+    background: #F9F9F9;
+    cursor: pointer;
+    margin: 5px 0;
+}
+
+.image-upload-area:hover {
+    border-color: #AF0A0F;
+    background: #FFF;
+}
+
+.image-upload-area.dragging {
+    border-color: #AF0A0F;
+    background: #FFE;
+}
+
+.image-preview {
+    margin: 10px 0;
+    display: none;
+}
+
+.image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border: 1px solid #CCC;
+}
+
+.upload-progress {
+    margin: 10px 0;
+    display: none;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #DDD;
+    border: 1px solid #BBB;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #789922;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* Posts with Images */
+.oppost, .post {
+    position: relative;
+    overflow: hidden; /* Prevent overflow */
+    display: flow-root; /* Modern clearfix - contains floats */
+}
+
+.oppost {
+    background: #F0E0D6;
+    border: 1px solid #D9BFB7;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.post {
+    background: #D6DAF0;
+    border: 1px solid #B7C5D9;
+    padding: 10px;
+    margin: 5px 0 5px 20px;
+}
+
+.post-header {
+    font-size: 11px;
+    margin-bottom: 8px;
+    color: #117743;
+    font-weight: bold;
+}
+
+.post-header .country-flag {
+    margin-right: 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.post-header .country-flag img {
+    width: 20px;
+    height: 15px;
+    border: 1px solid #CCC;
+    vertical-align: middle;
+    image-rendering: crisp-edges;
+}
+
+/* Fallback for missing flags */
+.post-header .country-flag img[alt]:after {
+    content: '🏴‍☠️';
+    font-size: 14pt;
+}
+
+.post-header .poster-id {
+    color: #117743;
+    font-weight: bold;
+}
+
+.post-header .reputation {
+    color: #AF0A0F;
+    font-size: 9pt;
+    margin-left: 3px;
+}
+
+.post-header .post-num {
+    color: #000;
+    font-weight: normal;
+}
+
+.post-header .post-num a {
+    color: #34345C;
+    text-decoration: none;
+}
+
+.post-header .post-num a:hover {
+    color: #AF0A0F;
+}
+
+.post-header .time {
+    color: #000;
+    font-weight: normal;
+}
+
+.post-controls {
+    float: right;
+    font-size: 9pt;
+}
+
+.post-controls a,
+.post-controls button {
+    color: #34345C;
+    text-decoration: none;
+    margin-left: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 9pt;
+}
+
+.post-controls a:hover,
+.post-controls button:hover {
+    color: #AF0A0F;
+}
+
+.post-image {
+    margin: 8px 0;
+    float: left;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    max-width: 250px; /* Hard limit */
+    position: relative; /* Contain within flow */
+}
+
+.post-image img {
+    max-width: 100%; /* Never exceed container */
+    max-height: 250px;
+    width: auto;
+    height: auto;
+    border: 1px solid #CCC;
+    cursor: pointer;
+    display: block;
+    object-fit: contain; /* Maintain aspect ratio */
+}
+
+.post-image img:hover {
+    opacity: 0.8;
+}
+
+.post-content {
+    margin: 8px 0;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-height: 1em; /* Prevent collapse */
+    display: block; /* Ensure block context */
+}
+
+/* Clear float after post content */
+.oppost::after,
+.post::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Greentext */
+.greentext {
+    color: #789922;
+}
+
+/* Quote links */
+.quotelink {
+    color: #AF0A0F;
+    text-decoration: none;
+}
+
+.quotelink:hover {
+    color: #D00;
+}
+
+/* Badges */
+.reply-badge {
+    background: #D6DAF0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 9pt;
+    margin-left: 10px;
+}
+
+.sticky-indicator {
+    color: #F00;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.bury-score {
+    color: #AF0A0F;
+    font-weight: bold;
+}
+
+.op-badge {
+    background: #F0E0D6;
+    color: #800;
+    padding: 1px 4px;
+    font-size: 8pt;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.mod-badge {
+    background: #F00;
+    color: white;
+    padding: 2px 5px;
+    font-size: 8pt;
+    font-weight: bold;
+    border-radius: 2px;
+    margin-left: 5px;
+}
+
+/* Elections */
+.election-notice {
+    background: #FFFFEE;
+    border: 2px solid #EEAA88;
+    padding: 15px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.election-notice h3 {
+    color: #AF0A0F;
+    margin-bottom: 10px;
+}
+
+.election-notice .time-remaining {
+    font-weight: bold;
+    color: #789922;
+}
+
+.candidate-list {
+    margin: 20px 0;
+}
+
+.candidate-card {
+    background: #E9E9E9;
+    border: 1px solid #CCC;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.candidate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #CCC;
+}
+
+.candidate-info {
+    flex: 1;
+}
+
+.candidate-info .country-flag {
+    font-size: 14pt;
+    margin-right: 5px;
+}
+
+.candidate-info .poster-id {
+    font-weight: bold;
+    color: #117743;
+}
+
+.candidate-votes {
+    text-align: right;
+}
+
+.candidate-votes .vote-count {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #AF0A0F;
+}
+
+.candidate-statement {
+    margin: 10px 0;
+    padding: 10px;
+    background: white;
+    border: 1px solid #DDD;
+    font-style: italic;
+}
+
+.vote-button {
+    background: #789922;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 3px;
+}
+
+.vote-button:hover {
+    background: #8AAA33;
+}
+
+.vote-button:disabled {
+    background: #CCC;
+    cursor: not-allowed;
+}
+
+.nominate-form {
+    background: #E9E9E9;
+    border: 1px solid #CCC;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+/* Bottom navigation */
+.bottom-nav {
+    text-align: center;
+    padding: 15px;
+    border-top: 1px solid #D9BFB7;
+    margin-top: 20px;
+}
+
+.bottom-nav a {
+    color: #34345C;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+/* Error messages */
+.error {
+    background: #FFEEEE;
+    border: 1px solid #FF0000;
+    padding: 10px;
+    margin: 10px 0;
+    color: #800;
+}
+
+/* Page title */
+.page-title {
+    background: #E9E9E9;
+    border: 1px solid #CCC;
+    padding: 10px;
+    margin: 10px 0;
+    font-weight: bold;
+    color: #34345C;
+}
+
+/* Thread stats */
+.thread-stats {
+    font-size: 9pt;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 9pt;
+    border-top: 1px solid #D9BFB7;
+    margin-top: 30px;
+}
+
+footer a {
+    color: #34345C;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    body {
+        font-size: 9pt;
+    }
+    
+    .container {
+        padding: 0 5px;
+    }
+    
+    .post {
+        margin-left: 10px;
+    }
+    
+    .stats-box, .backend-status {
+        position: static;
+        margin: 5px;
+        max-width: 100%;
+    }
+    
+    .post-form .label {
+        display: block;
+        text-align: left;
+        width: 100%;
+    }
+    
+    .board-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .board-stats {
+        margin-top: 5px;
+    }
+    
+    .post-image {
+        float: none;
+        display: block;
+        margin: 10px 0;
+        max-width: 100%;
+    }
+    
+    .post-image img {
+        max-width: 100%;
+        max-height: 300px;
+        width: auto;
+        height: auto;
+    }
+    
+    .post-content {
+        clear: both;
+    }
+}
+
+/* Image modal */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    cursor: pointer;
+}
+
+.image-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid white;
+}
+
+.image-modal .close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.image-modal .close:hover {
+    color: #bbb;
+}

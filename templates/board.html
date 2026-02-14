@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}/{{ board.slug }}/ - {{ board.name }}{% endblock %}
+{% block content %}
+<div class="page-title">
+    /{{ board.slug }}/ - {{ board.name }}
+    {% if is_mod %}<span class="mod-badge">MOD</span>{% endif %}
+</div>
+
+{% if board.description %}
+<div style="text-align: center; padding: 10px; color: #666; font-style: italic;">
+    {{ board.description }}
+</div>
+{% endif %}
+
+{% if election %}
+<div class="election-notice">
+    <h3>🗳️ MODERATOR ELECTION IN PROGRESS</h3>
+    <p class="time-remaining">Election Active • Candidates: {{ election.candidate_count }}</p>
+    <p><a href="/{{ board.slug }}/election">View Election & Vote →</a></p>
+</div>
+{% endif %}
+
+<div class="post-form">
+    <form method="POST" action="/{{ board.slug }}/post" id="threadForm">
+        <table>
+            <tr>
+                <td class="label">Comment:</td>
+                <td>
+                    <textarea name="content" required maxlength="10000" 
+                              placeholder="Enter your message here..."></textarea>
+                </td>
+            </tr>
+            {% if imagekit_auth %}
+            <tr>
+                <td class="label">Image:</td>
+                <td>
+                    <div class="image-upload-area" id="dropZone">
+                        <p>📁 Drag & drop image here or click to browse</p>
+                        <p style="font-size: 9pt; color: #666;">Max 10MB • JPG, PNG, GIF, WebP</p>
+                        <input type="file" id="fileInput" accept="image/*" style="display:none;">
+                    </div>
+                    <div class="image-preview" id="preview"></div>
+                    <div class="upload-progress" id="progress">
+                        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                        <p id="progressText" style="margin-top: 5px; font-size: 9pt;">Uploading...</p>
+                    </div>
+                    <input type="hidden" name="image_url" id="imageUrl">
+                    <input type="hidden" name="image_thumbnail" id="imageThumbnail">
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2" style="padding: 10px; background: #FFE; border: 1px solid #D9BFB7; font-size: 9pt; color: #666;">
+                    ℹ️ Image uploads disabled. Configure ImageKit to enable.
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td></td>
+                <td><button type="submit">Post</button></td>
+            </tr>
+        </table>
+    </form>
+    <div style="font-size: 9pt; color: #666; margin-top: 5px;">
+        Use <span class="greentext">&gt;text</span> for greentext
+    </div>
+</div>
+
+{% if threads %}
+    {% for thread in threads %}
+    <div class="thread">
+        <div class="oppost">
+            <div class="post-header">
+                {% if thread.is_sticky %}<span class="sticky-indicator">📌</span>{% endif %}
+                <span class="country-flag"><img src="{{ thread.country|country_flag }}" alt="{{ thread.country }}" title="{{ thread.country }}" onerror="this.style.display='none'"></span>
+                <span class="poster-id">{{ thread.poster_id }}</span>
+                {% if thread.is_op %}<span class="op-badge">YOU</span>{% endif %}
+                <span class="time">{{ thread.created_at|format_time }}</span>
+                <span class="post-num">No. <a href="/{{ board.slug }}/thread/{{ thread.id }}">{{ thread.id }}</a></span>
+                <span class="post-controls">
+                    <a href="/{{ board.slug }}/thread/{{ thread.id }}">[Reply]</a>
+                    {% if not thread.is_op %}
+                    <button class="bury-btn" data-post-id="{{ thread.id }}">[Bury {{ thread.bury_score }}]</button>
+                    {% endif %}
+                </span>
+            </div>
+            {% if thread.image_url %}
+            <div class="post-image">
+                <img src="{{ thread.image_thumbnail or thread.image_url }}" 
+                     onclick="openImageModal('{{ thread.image_url }}')" alt="Image">
+            </div>
+            {% endif %}
+            <div class="post-content">{{ thread.content|process_content|safe }}</div>
+            {% if thread.reply_count > 0 %}
+            <div class="thread-stats">
+                <a href="/{{ board.slug }}/thread/{{ thread.id }}">{{ thread.reply_count }} replies</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="empty-state"><p>No threads yet! Be the first to post.</p></div>
+{% endif %}
+
+<div class="bottom-nav"><a href="/">Return to Boards</a></div>
+{% endblock %}
+
+{% block scripts %}
+{% if imagekit_auth %}
+<script>
+// ImageKit authentication - using window object to avoid redeclaration
+window.imagekitAuth = {
+    publicKey: '{{ imagekit_auth.publicKey }}',
+    signature: '{{ imagekit_auth.signature }}',
+    token: '{{ imagekit_auth.token }}',
+    expire: '{{ imagekit_auth.expire }}',
+    urlEndpoint: '{{ imagekit_auth.urlEndpoint }}'
+};
+console.log('[ImageKit] Auth configured');
+</script>
+{% else %}
+<script>
+window.imagekitAuth = null;
+console.log('[ImageKit] Not configured - upload disabled');
+</script>
+{% endif %}
+<script src="{{ url_for('static', filename='imagekit.js') }}"></script>
+{% endblock %}

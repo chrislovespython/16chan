@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}16chan - Boards{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    Boards
+</div>
+
+{% if boards %}
+<div class="board-list">
+    <div class="board-list-header">
+        All Boards (Sorted by Activity)
+    </div>
+    {% for board in boards %}
+    <div class="board-row">
+        <div class="board-info">
+            <a href="/{{ board.slug }}/" class="board-link">/{{ board.slug }}/</a>
+            <span class="board-name">- {{ board.name }}</span>
+            {% if board.description %}
+            <span class="board-desc">{{ board.description }}</span>
+            {% endif %}
+            {% if board.activity_score > 20 %}
+            <span class="trending-badge">🔥 TRENDING</span>
+            {% endif %}
+        </div>
+        <div class="board-stats">
+            <span>{{ board.thread_count }} threads</span>
+            {% if board.unique_posters > 0 %}
+            <span>{{ board.unique_posters }} posters</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p><strong>No boards yet!</strong></p>
+    <p>Be the first to <a href="/board/new">create a board</a>.</p>
+</div>
+{% endif %}
+
+<div class="bottom-nav">
+    <a href="/board/new">Create New Board</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+console.log('[16chan V2] Boards page loaded');
+console.log('[16chan V2] Found {{ boards|length }} boards');
+</script>
+{% endblock %}

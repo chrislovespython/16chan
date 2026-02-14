@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Election - /{{ board.slug }}/{% endblock %}
+{% block content %}
+<div class="page-title">/{{ board.slug }}/ - Moderator Election</div>
+
+<div class="election-notice">
+    <h3>🗳️ MODERATOR ELECTION</h3>
+    <p>Ends: {{ election.ends_at|format_time }}</p>
+    <p>Vote for the next moderator of /{{ board.slug }}/</p>
+</div>
+
+<h3>Candidates ({{ candidates|length }})</h3>
+
+{% if candidates %}
+<div class="candidate-list">
+    {% for candidate in candidates %}
+    <div class="candidate-card">
+        <div class="candidate-header">
+            <div class="candidate-info">
+                <span class="country-flag"><img src="{{ candidate.country|country_flag }}" alt="{{ candidate.country }}" title="{{ candidate.country }}"></span>
+                <span class="poster-id">{{ candidate.poster_id }}</span>
+            </div>
+            <div class="candidate-votes">
+                <div class="vote-count">{{ candidate.votes }}</div>
+                <div style="font-size: 9pt; color: #666;">votes</div>
+            </div>
+        </div>
+        <div class="candidate-statement">"{{ candidate.statement }}"</div>
+        <div style="text-align: center; margin-top: 10px;">
+            <button class="vote-button" onclick="vote( candidate.id )" 
+                    {% if has_voted %}disabled{% endif %}>
+                {% if has_voted %}Already Voted{% else %}Vote{% endif %}
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><p>No candidates yet!</p></div>
+{% endif %}
+
+{% if not is_candidate and not has_voted %}
+<div class="nominate-form">
+    <h3>Nominate Yourself</h3>
+    <form method="POST" action="/{{ board.slug }}/election/nominate">
+        <textarea name="statement" required maxlength="500" rows="4" 
+                  placeholder="Why should the community elect you as moderator? (Max 500 chars)"></textarea>
+        <br><br>
+        <button type="submit">Submit Nomination</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="bottom-nav"><a href="/{{ board.slug }}/">Return to Board</a></div>
+
+<script>
+async function vote(candidateId) {
+    const response = await fetch('/api/election/vote/' + candidateId, {method: 'POST'});
+    const data = await response.json();
+    if (data.success) {
+        location.reload();
+    } else {
+        alert('Failed to vote');
+    }
+}
+</script>
+{% endblock %}

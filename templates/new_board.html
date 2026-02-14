@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Board - 16chan V3{% endblock %}
+
+{% block content %}
+<div class="page-title">Create New Board</div>
+
+{% if error %}
+<div class="error"><strong>Error:</strong> {{ error }}</div>
+{% endif %}
+
+<div class="post-form">
+    <form method="POST" action="/board/new">
+        <table>
+            <tr>
+                <td class="label">Board Slug:</td>
+                <td>
+                    <input type="text" name="slug" required 
+                           pattern="[a-zA-Z0-9]+" maxlength="10"
+                           placeholder="tech" />
+                    <div style="font-size: 9pt; color: #666; margin-top: 3px;">
+                        Alphanumeric only, max 10 chars. This becomes /slug/
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Board Name:</td>
+                <td>
+                    <input type="text" name="name" required maxlength="100"
+                           placeholder="Technology" />
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Description:</td>
+                <td>
+                    <textarea name="description" rows="3" maxlength="500"
+                              placeholder="A board for discussing technology..."></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit">Create Board</button>
+                    <a href="/" class="button" style="background: #DDD;">Cancel</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div style="background: #FFFFEE; border: 1px solid #D9BFB7; padding: 15px; margin: 20px 0;">
+    <h3 style="margin-bottom: 10px; color: #AF0A0F;">Board Creation Rules:</h3>
+    <ul style="margin-left: 30px; line-height: 1.6;">
+        <li>Your account must be at least <strong>7 days old</strong></li>
+        <li>You will become the board <strong>moderator</strong></li>
+        <li>You can start <strong>elections</strong> for community moderators</li>
+        <li>Boards with no active threads will be <strong>deactivated</strong></li>
+        <li>Posts naturally <strong>decay</strong> over time</li>
+    </ul>
+</div>
+
+<div class="bottom-nav">
+    <a href="/">Return to Boards</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+console.log('[16chan V3] Create board page loaded');
+
+const slugInput = document.querySelector('input[name="slug"]');
+slugInput.addEventListener('input', function() {
+    const slug = this.value;
+    const isValid = /^[a-zA-Z0-9]*$/.test(slug);
+    
+    if (!isValid && slug.length > 0) {
+        this.style.borderColor = '#F00';
+    } else {
+        this.style.borderColor = '#BBB';
+    }
+});
+</script>
+{% endblock %}
