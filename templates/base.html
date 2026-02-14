@@ -1,119 +1,126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}16chan V3{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}16chan{% endblock %}</title>
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='favicon.ico') }}"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
     <!-- Backend Status -->
     <div class="backend-status">
-        <div class="status-title">Backend Status</div>
-        <div class="status-item">
-            <span class="status-label">Database:</span>
-            <span class="status-icon">{{ backend_status.database }}</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">ImageKit:</span>
-            <span class="status-icon">{{ backend_status.imagekit }}</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Decay Worker:</span>
-            <span class="status-icon">{{ backend_status.decay_worker }}</span>
-        </div>
-        {% if backend_status.last_decay %}
-        <div style="font-size: 8pt; color: #666; margin-top: 3px;">
-            Last decay: {{ backend_status.last_decay|format_time }}
-        </div>
-        {% endif %}
-        <div style="margin-top: 5px; text-align: center;">
-            <a href="/status" style="color: #34345C; font-size: 9pt;">[Details]</a>
-        </div>
+      <div class="status-title">Backend Status</div>
+      <div class="status-item">
+        <span class="status-label">16chan "secured" Database:</span>
+        <span class="status-icon">{{ backend_status.database }}</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Images Server:</span>
+        <span class="status-icon">{{ backend_status.imagekit }}</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">The Decay Worker™:</span>
+        <span class="status-icon">{{ backend_status.decay_worker }}</span>
+      </div>
+      {% if backend_status.last_decay %}
+      <div style="font-size: 8pt; color: #666; margin-top: 3px">
+        Last decay: {{ backend_status.last_decay|format_time }}
+      </div>
+      {% endif %}
+      <div style="margin-top: 5px; text-align: center">
+        <a href="/status" style="color: #34345c; font-size: 9pt">[Details]</a>
+      </div>
     </div>
-    
+
     <!-- Stats Box -->
     {% if stats %}
     <div class="stats-box">
-        <div class="stat">
-            <span class="stat-label">Posts:</span> {{ stats.total_posts }}
-        </div>
-        <div class="stat">
-            <span class="stat-label">Boards:</span> {{ stats.total_boards }}
-        </div>
-        <div class="stat">
-            <span class="stat-label">Active:</span> {{ stats.active_users }}
-        </div>
-        <div class="stat">
-            <span class="stat-label">24h:</span> {{ stats.posts_24h }}
-        </div>
-        <div class="stat">
-            <span class="stat-label">Images:</span> {{ stats.images }}
-        </div>
-        <div class="stat">
-            <span class="stat-label">Uptime:</span> {{ stats.uptime|format_uptime }}
-        </div>
+      <div class="stat">
+        <span class="stat-label">Posts Made By Nerds:</span> {{
+        stats.total_posts }}
+      </div>
+      <div class="stat">
+        <span class="stat-label">Active Boards:</span> {{ stats.total_boards }}
+      </div>
+      <div class="stat">
+        <span class="stat-label">Active Nerds:</span> {{ stats.active_users }}
+      </div>
+      <div class="stat">
+        <span class="stat-label">24h:</span> {{ stats.posts_24h }}
+      </div>
+      <div class="stat">
+        <span class="stat-label">Images Hosted:</span> {{ stats.images }}
+      </div>
+      <div class="stat">
+        <span class="stat-label">Uptime:</span> {{ stats.uptime|format_uptime }}
+      </div>
     </div>
     {% endif %}
-    
+
     <!-- Header -->
     <header>
-        <h1><a href="/">16chan V3</a></h1>
-        <div class="subtitle">Anonymous posting • Elections • Image uploads • Natural decay</div>
+      <h1><a href="/">16chan</a></h1>
+      <div class="subtitle">the 10s 4chan democratic son</div>
     </header>
-    
+
     <!-- Navigation -->
     <nav>
-        <a href="/">[ Boards ]</a>
-        <a href="/board/new">[ Create Board ]</a>
-        <a href="/status">[ Status ]</a>
+      <a href="/">[ Boards ]</a>
+      <a href="/board/new">[ Create Board ]</a>
+      <a href="/status">[ Status ]</a>
     </nav>
-    
+
     <!-- Main Content -->
-    <div class="container">
-        {% block content %}{% endblock %}
-    </div>
-    
+    <div class="container">{% block content %}{% endblock %}</div>
+
     <!-- Footer -->
     <footer>
-        <div>16chan V3 - Enhanced with Elections & Images</div>
-        <div style="margin-top: 5px; font-size: 8pt; color: #999;">
-            Now featuring moderator elections, country flags, ImageKit integration, and backend monitoring
-        </div>
+      <div>16chan - the 10s 4chan son</div>
+      <div style="margin-top: 5px; font-size: 8pt; color: #999">
+        Now featuring democracy as Plato wanted!
+      </div>
     </footer>
-    
+
     <!-- Image Modal -->
     <div id="imageModal" class="image-modal" onclick="closeImageModal()">
-        <span class="close" onclick="closeImageModal()">&times;</span>
-        <img id="modalImage" src="" alt="">
+      <span class="close" onclick="closeImageModal()">&times;</span>
+      <img id="modalImage" src="" alt="" />
     </div>
-    
+
     <script>
-        // Image modal
-        function openImageModal(src) {
-            document.getElementById('imageModal').style.display = 'block';
-            document.getElementById('modalImage').src = src;
+      // Image modal
+      function openImageModal(src) {
+        document.getElementById("imageModal").style.display = "block";
+        document.getElementById("modalImage").src = src;
+      }
+
+      function closeImageModal() {
+        document.getElementById("imageModal").style.display = "none";
+      }
+
+      // Close on escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeImageModal();
         }
-        
-        function closeImageModal() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-        
-        // Close on escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeImageModal();
-            }
-        });
-        
-        console.log('[16chan V3] Page loaded');
-        console.log('[16chan V3] Backend status:', {
-            database: '{{ backend_status.database }}',
-            imagekit: '{{ backend_status.imagekit }}',
-            worker: '{{ backend_status.decay_worker }}'
-        });
+      });
+
+      console.log("[16chan V3] Page loaded");
+      console.log("[16chan V3] 16chan status:", {
+        database: "{{ backend_status.database }}",
+        imagekit: "{{ backend_status.imagekit }}",
+        worker: "{{ backend_status.decay_worker }}",
+      });
     </script>
-    
+
     {% block scripts %}{% endblock %}
-</body>
+  </body>
 </html>
