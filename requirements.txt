@@ -2,3 +2,4 @@ Flask==3.0.0
 psycopg[binary]
 gunicorn==21.2.0
 requests
+python-dotenv

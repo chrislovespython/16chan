@@ -44,39 +44,38 @@ IMAGEKIT_URL_ENDPOINT = os.environ.get('IMAGEKIT_URL_ENDPOINT', '')
 # Security: Set this in Render Env Vars
 DECAY_SECRET = os.environ.get("DECAY_SECRET")
 
-@app.post("/internal/run-decay")
-def run_decay():
-    # 1. Auth Check
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or auth_header != f"Bearer {DECAY_SECRET}":
-        abort(403)
-
+def calculate_decay():
+    # Cooldown check: Only run if it hasn't run in the last 10 minutes
     now = int(time.time())
-    thirty_days_ago = now - (30 * 24 * 60 * 60)
+    if backend_status.get('last_decay') and (now - backend_status['last_decay']) < 600:
+        return
     
+    debug_print("Starting optimized decay cycle...")
     conn = get_db()
-    cursor = conn.cursor()
-
+    if not conn: return
+    
     try:
-        # 2. Vectorized Decay & Soft-Delete logic
-        # Calculates decay_score and flips is_deleted in one sweep
-        cursor.execute('''
+        cursor = conn.cursor()
+        thirty_days_ago = now - (30 * 24 * 60 * 60)
+        
+        # Use %s for psycopg (Postgres) or ? for sqlite3
+        p = "%s" if USE_POSTGRES else "?"
+
+        # 1. DELETE OLD & CALCULATE SCORES (The Vectorized Way)
+        # This one query does all your math for all posts at once
+        cursor.execute(f'''
             UPDATE posts 
             SET 
-                decay_score = MAX(0, (bury_score * 1.5) + (((? - created_at) / 3600.0) * 0.3)),
+                decay_score = MAX(0, (bury_score * 1.5) + ((( {p} - created_at) / 3600.0) * 0.3) - (reply_count * 0.1)),
                 is_deleted = CASE 
-                    WHEN ((bury_score * 1.5) + (((? - created_at) / 3600.0) * 0.3)) > 10.0 THEN 1 
+                    WHEN created_at < {p} THEN 1
+                    WHEN ((bury_score * 1.5) + ((( {p} - created_at) / 3600.0) * 0.3) - (reply_count * 0.1)) > 10.0 THEN 1 
                     ELSE is_deleted 
                 END
-            WHERE is_deleted = 0 
-            AND is_sticky = 0
-            AND created_at > ?
-        ''', (now, now, thirty_days_ago))
+            WHERE is_deleted = 0 AND is_sticky = 0
+        ''', (now, thirty_days_ago, now, now))
 
-        # 3. Cleanup: Mark anything older than 30 days as deleted
-        cursor.execute('UPDATE posts SET is_deleted = 1 WHERE created_at < ? AND is_deleted = 0', (thirty_days_ago,))
-
-        # 4. Board Maintenance: Deactivate empty boards
+        # 2. DEACTIVATE EMPTY BOARDS
         cursor.execute('''
             UPDATE boards SET is_active = 0 
             WHERE id IN (
@@ -87,13 +86,12 @@ def run_decay():
         ''')
         
         conn.commit()
-        return jsonify({"status": "success"}), 200
-    
+        backend_status['last_decay'] = now
+        debug_print("Decay cycle complete")
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        debug_print(f"Decay error: {e}")
     finally:
         conn.close()
-
 # Backend Status
 backend_status = {
     'database': '🟢',  # Green
@@ -840,6 +838,8 @@ def new_board():
 @app.route('/<slug>/')
 def view_board(slug):
     session_id = get_or_create_session()
+    
+    calculate_decay()
     
     conn = get_db()
     if not conn:
