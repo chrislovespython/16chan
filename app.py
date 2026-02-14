@@ -42,6 +42,59 @@ IMAGEKIT_PRIVATE_KEY = os.environ.get('IMAGEKIT_PRIVATE_KEY', '')
 IMAGEKIT_PUBLIC_KEY = os.environ.get('IMAGEKIT_PUBLIC_KEY', '')
 IMAGEKIT_URL_ENDPOINT = os.environ.get('IMAGEKIT_URL_ENDPOINT', '')
 
+# Security: Set this in Render Env Vars
+DECAY_SECRET = os.environ.get("DECAY_SECRET")
+
+@app.post("/internal/run-decay")
+def run_decay():
+    # 1. Auth Check
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or auth_header != f"Bearer {DECAY_SECRET}":
+        abort(403)
+
+    now = int(time.time())
+    thirty_days_ago = now - (30 * 24 * 60 * 60)
+    
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+        # 2. Vectorized Decay & Soft-Delete logic
+        # Calculates decay_score and flips is_deleted in one sweep
+        cursor.execute('''
+            UPDATE posts 
+            SET 
+                decay_score = MAX(0, (bury_score * 1.5) + (((? - created_at) / 3600.0) * 0.3)),
+                is_deleted = CASE 
+                    WHEN ((bury_score * 1.5) + (((? - created_at) / 3600.0) * 0.3)) > 10.0 THEN 1 
+                    ELSE is_deleted 
+                END
+            WHERE is_deleted = 0 
+            AND is_sticky = 0
+            AND created_at > ?
+        ''', (now, now, thirty_days_ago))
+
+        # 3. Cleanup: Mark anything older than 30 days as deleted
+        cursor.execute('UPDATE posts SET is_deleted = 1 WHERE created_at < ? AND is_deleted = 0', (thirty_days_ago,))
+
+        # 4. Board Maintenance: Deactivate empty boards
+        cursor.execute('''
+            UPDATE boards SET is_active = 0 
+            WHERE id IN (
+                SELECT b.id FROM boards b
+                LEFT JOIN posts p ON p.board_id = b.id AND p.parent_id IS NULL AND p.is_deleted = 0
+                GROUP BY b.id HAVING COUNT(p.id) = 0
+            )
+        ''')
+        
+        conn.commit()
+        return jsonify({"status": "success"}), 200
+    
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
+
 # Backend Status
 backend_status = {
     'database': '🟢',  # Green
