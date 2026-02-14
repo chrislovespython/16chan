@@ -13,8 +13,8 @@ import os
 import requests
 from datetime import datetime
 import  random
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.extras import RealDictCursor
 from dotenv import load_dotenv
 import sqlite3
 
@@ -36,7 +36,7 @@ else:
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'change-me-in-production-v3')
 DATABASE = 'db.sqlite'
-
+placeholder = "%s" if USE_POSTGRES else "?"
 # ImageKit Configuration
 IMAGEKIT_PRIVATE_KEY = os.environ.get('IMAGEKIT_PRIVATE_KEY', '')
 IMAGEKIT_PUBLIC_KEY = os.environ.get('IMAGEKIT_PUBLIC_KEY', '')
