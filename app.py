@@ -563,8 +563,8 @@ def calculate_trending():
     
     cursor.execute('''
         SELECT b.id,
-               COUNT(DISTINCT CASE WHEN p.created_at > ? THEN p.id END) as posts_24h,
-               COUNT(DISTINCT CASE WHEN p.created_at > ? THEN p.session_id END) as unique_posters
+            COUNT(DISTINCT CASE WHEN p.created_at > %s THEN p.id END) as posts_24h,
+            COUNT(DISTINCT CASE WHEN p.created_at > %s THEN p.session_id END) as unique_posters
         FROM boards b
         LEFT JOIN posts p ON p.board_id = b.id AND p.is_deleted = 0
         WHERE b.is_active = 1
