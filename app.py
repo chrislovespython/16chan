@@ -14,6 +14,7 @@ import requests
 from datetime import datetime
 import  random
 import psycopg
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
 import sqlite3
 
@@ -149,134 +150,134 @@ def debug_print(msg):
 
 def get_db():
     try:
-        conn = psycopg.connect(DATABASE_URL)
-        conn.row_factory = sqlite3.Row
+        # Ensure DATABASE_URL is your Render Environment Variable
+        conn = psycopg.connect(DATABASE_URL, row_factory=dict_row)
         backend_status['database'] = '🟢'
         return conn
     except Exception as e:
-        debug_print(f"Database error: {e}")
+        print(f"Database error: {e}")
         backend_status['database'] = '🔴'
         return None
-
+    
 def init_db():
-    debug_print("Initializing V3 database")
+    debug_print("Initializing PostgreSQL V3 database")
     conn = get_db()
     if not conn:
         return
     
-    cursor = conn.cursor()
-    
-    # Sessions
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS sessions (
-            id TEXT PRIMARY KEY,
-            created_at INTEGER,
-            country TEXT DEFAULT 'XX',
-            post_count INTEGER DEFAULT 0,
-            last_post_at INTEGER,
-            is_banned INTEGER DEFAULT 0,
-            reputation INTEGER DEFAULT 0
-        )
-    ''')
-    
-    # Boards with elections
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS boards (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            slug TEXT UNIQUE,
-            name TEXT,
-            description TEXT,
-            created_at INTEGER,
-            creator_session_id TEXT,
-            is_active INTEGER DEFAULT 1,
-            post_count INTEGER DEFAULT 0,
-            unique_posters INTEGER DEFAULT 0,
-            activity_score REAL DEFAULT 0,
-            election_active INTEGER DEFAULT 0,
-            election_ends_at INTEGER
-        )
-    ''')
-    
-    # Posts with images
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            board_id INTEGER,
-            parent_id INTEGER DEFAULT NULL,
-            session_id TEXT,
-            content TEXT,
-            image_url TEXT,
-            image_thumbnail TEXT,
-            created_at INTEGER,
-            bury_score INTEGER DEFAULT 0,
-            decay_score REAL DEFAULT 0,
-            is_deleted INTEGER DEFAULT 0,
-            is_sticky INTEGER DEFAULT 0,
-            reply_count INTEGER DEFAULT 0
-        )
-    ''')
-    
-    # Votes
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS votes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_id INTEGER,
-            session_id TEXT,
-            value INTEGER,
-            UNIQUE(post_id, session_id)
-        )
-    ''')
-    
-    # Moderators with elected status
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS moderators (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            board_id INTEGER,
-            session_id TEXT,
-            role TEXT,
-            appointed_at INTEGER,
-            is_elected INTEGER DEFAULT 0,
-            term_ends_at INTEGER
-        )
-    ''')
-    
-    # Elections
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS elections (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            board_id INTEGER,
-            started_at INTEGER,
-            ends_at INTEGER,
-            is_active INTEGER DEFAULT 1,
-            winner_session_id TEXT
-        )
-    ''')
-    
-    # Election candidates
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS election_candidates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            election_id INTEGER,
-            session_id TEXT,
-            statement TEXT,
-            votes INTEGER DEFAULT 0
-        )
-    ''')
-    
-    # Stats
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS stats (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp INTEGER,
-            total_posts INTEGER,
-            total_boards INTEGER,
-            total_users INTEGER,
-            posts_last_24h INTEGER,
-            images_uploaded INTEGER
-        )
-    ''')
-    
-    conn.commit()
+    with conn.cursor() as cursor:
+        # Sessions
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS sessions (
+                id TEXT PRIMARY KEY,
+                created_at BIGINT,
+                country TEXT DEFAULT 'XX',
+                post_count INTEGER DEFAULT 0,
+                last_post_at BIGINT,
+                is_banned INTEGER DEFAULT 0,
+                reputation INTEGER DEFAULT 0
+            )
+        ''')
+        
+        # Boards
+        # Note: SERIAL handles the autoincrement in Postgres
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS boards (
+                id SERIAL PRIMARY KEY,
+                slug TEXT UNIQUE,
+                name TEXT,
+                description TEXT,
+                created_at BIGINT,
+                creator_session_id TEXT,
+                is_active INTEGER DEFAULT 1,
+                post_count INTEGER DEFAULT 0,
+                unique_posters INTEGER DEFAULT 0,
+                activity_score REAL DEFAULT 0,
+                election_active INTEGER DEFAULT 0,
+                election_ends_at BIGINT
+            )
+        ''')
+        
+        # Posts
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS posts (
+                id SERIAL PRIMARY KEY,
+                board_id INTEGER,
+                parent_id INTEGER DEFAULT NULL,
+                session_id TEXT,
+                content TEXT,
+                image_url TEXT,
+                image_thumbnail TEXT,
+                created_at BIGINT,
+                bury_score INTEGER DEFAULT 0,
+                decay_score REAL DEFAULT 0,
+                is_deleted INTEGER DEFAULT 0,
+                is_sticky INTEGER DEFAULT 0,
+                reply_count INTEGER DEFAULT 0
+            )
+        ''')
+        
+        # Votes
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS votes (
+                id SERIAL PRIMARY KEY,
+                post_id INTEGER,
+                session_id TEXT,
+                value INTEGER,
+                UNIQUE(post_id, session_id)
+            )
+        ''')
+        
+        # Moderators
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS moderators (
+                id SERIAL PRIMARY KEY,
+                board_id INTEGER,
+                session_id TEXT,
+                role TEXT,
+                appointed_at BIGINT,
+                is_elected INTEGER DEFAULT 0,
+                term_ends_at BIGINT
+            )
+        ''')
+        
+        # Elections
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS elections (
+                id SERIAL PRIMARY KEY,
+                board_id INTEGER,
+                started_at BIGINT,
+                ends_at BIGINT,
+                is_active INTEGER DEFAULT 1,
+                winner_session_id TEXT
+            )
+        ''')
+        
+        # Election candidates
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS election_candidates (
+                id SERIAL PRIMARY KEY,
+                election_id INTEGER,
+                session_id TEXT,
+                statement TEXT,
+                votes INTEGER DEFAULT 0
+            )
+        ''')
+        
+        # Stats
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS stats (
+                id SERIAL PRIMARY KEY,
+                timestamp BIGINT,
+                total_posts INTEGER,
+                total_boards INTEGER,
+                total_users INTEGER,
+                posts_last_24h INTEGER,
+                images_uploaded INTEGER
+            )
+        ''')
+        
+        conn.commit()
     conn.close()
     debug_print("V3 Database initialized")
 
