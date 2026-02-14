@@ -14,7 +14,6 @@ import requests
 from datetime import datetime
 import  random
 import psycopg
-from psycopg.extras import RealDictCursor
 from dotenv import load_dotenv
 import sqlite3
 
@@ -152,7 +151,7 @@ def debug_print(msg):
 
 def get_db():
     try:
-        conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+        conn = psycopg.connect(DATABASE_URL)
         conn.row_factory = sqlite3.Row
         backend_status['database'] = '🟢'
         return conn
