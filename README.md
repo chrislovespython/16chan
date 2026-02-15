@@ -20,7 +20,6 @@ A minimalist, grayscale imageboard/forum built with Flask and SQLite. The projec
 ├── start.sh             # Automated startup script
 ├── requirements.txt     # Python dependencies
 ├── README.md            # Full documentation (this file)
-├��─ QUICKSTART.md        # Condensed quick start
 ├── db.sqlite            # SQLite database (auto-created at runtime)
 ├── templates/
 │   ├── base.html        # Base template
