@@ -718,7 +718,7 @@ def check_rate_limit(session_id, action_type):
 	last_post = row['last_post_at']
 
 	limits = {
-		'board': (7 * 24 * 3600, 'account age'),
+		'board': (1 * 24 * 3600, 'account age'),
 		'thread': (120, 'cooldown'),
 		'reply': (60, 'cooldown')
 	}
