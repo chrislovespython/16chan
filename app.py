@@ -842,7 +842,7 @@ def new_board():
     return render_template('new_board.html', stats=stats, backend_status=backend_status)
 
 @app.route('/<slug>/')
-	def view_board(slug):
+def view_board(slug):
     session_id = get_or_create_session()
     
     calculate_decay()
