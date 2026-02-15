@@ -31,7 +31,7 @@ print(f"[INFO] Using {'PostgreSQL (production)' if IS_POSTGRES else 'SQLite (dev
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'change-me-in-production-v3')
 DATABASE = 'db.sqlite'
-placeholder = "%s" if USE_POSTGRES else "{placeholder}"
+placeholder = "%s" if IS_POSTGRES else "{placeholder}"
 # ImageKit Configuration
 IMAGEKIT_PRIVATE_KEY = os.environ.get('IMAGEKIT_PRIVATE_KEY', '')
 IMAGEKIT_PUBLIC_KEY = os.environ.get('IMAGEKIT_PUBLIC_KEY', '')
