@@ -1,7 +1,5 @@
 """
-16chan V1 - Anonymous imageboard with decay mechanics
-Main Flask application handling all routes and core logic
-Production version with PostgreSQL support
+16chan Anonymous imageboard
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
@@ -29,7 +27,7 @@ placeholder = '%s' if IS_POSTGRES else '?'
 print(f"[INFO] Using {'PostgreSQL (production)' if IS_POSTGRES else 'SQLite (development)'} database")
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'change-me-in-production-v3')
+app.secret_key = os.environ.get('SECRET_KEY')
 DATABASE = 'db.sqlite'
 placeholder = "%s" if IS_POSTGRES else "{placeholder}"
 # ImageKit Configuration
@@ -55,7 +53,7 @@ def calculate_decay():
 		thirty_days_ago = now - (30 * 24 * 60 * 60)
 
 		# Use %s for psycopg (Postgres) or {placeholder} for sqlite3
-		p = "%s" if USE_POSTGRES else "{placeholder}"
+		p = "%s" if IS_POSTGRES else "{placeholder}"
 
 		# 1. DELETE OLD & CALCULATE SCORES (The Vectorized Way)
 		# This one query does all your math for all posts at once
@@ -720,9 +718,9 @@ def check_rate_limit(session_id, action_type):
 	last_post = row['last_post_at']
 
 	limits = {
-		'board': (5, 'account age'),
-		'thread': (60, 'cooldown'),
-		'reply': (20, 'cooldown')
+		'board': (7 * 24 * 3600'account age'),
+		'thread': (120, 'cooldown'),
+		'reply': (60, 'cooldown')
 	}
 
 	if action_type in limits:
